@@ -2,7 +2,7 @@ import json
 
 
 def load_settings():
-    credentials = str(open("credentials.json").read())
+    credentials = open("credentials.json").read()
     settings_dict = json.loads(credentials, encoding="ASCII")
     str_dict = {}
     for key, val in settings_dict.items():
