@@ -1,11 +1,6 @@
 import json
 
 
-class Struct:
-    def __init__(self, **entries):
-        self.__dict__.update(entries)
-
-
 def load_settings():
     credentials = str(open("credentials.json").read())
     settings_dict = json.loads(credentials, encoding="ASCII")
@@ -16,5 +11,15 @@ def load_settings():
         if type(val) == unicode:
             val = str(val)
         str_dict[key] = val
-    settings_object = Struct(**str_dict)
-    return settings_object
+    return str_dict
+
+
+class Credentials():
+    def __init__(self):
+        cred_dict = load_settings()
+        self.AccountName = cred_dict['AccountName']
+        self.AccountID = cred_dict['AccountID']
+        self.MarketplaceID = cred_dict['MarketplaceID']
+        self.AccountNumber = cred_dict['AccountNumber']
+        self.AccessKey = cred_dict['AccessKey']
+        self.SecretKey = cred_dict['SecretKey']
