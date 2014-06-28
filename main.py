@@ -12,10 +12,14 @@ api = mws.Reports(access_key=credentials.AccessKey, secret_key=credentials.Secre
                   account_id=credentials.AccountID, region='UK')
 
 # request = api.request_report(report_type='_GET_FLAT_FILE_OPEN_LISTINGS_DATA_',
-#                      marketplaceids=(credentials.MarketplaceID,))
+# marketplaceids=(credentials.MarketplaceID,))
 
 request_list = api.get_report_request_list()
 # what I'm going to need to do is, when I make a request I need to store the report ID.
 # Then, I check every now and then if that report ID is 'done'
 # if it is, use api.get_report(reportID) to get the report
 # will see what happens after that...
+for report in request_list.parsed.ReportRequestInfo:
+    print "RequestID: %-11s| Type: %-50s| Status: %8s| DateSubmitted: %s" % (
+        report.ReportRequestId, report.ReportType, report.ReportProcessingStatus,
+        report.SubmittedDate)
