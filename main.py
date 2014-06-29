@@ -1,6 +1,7 @@
 from mws import mws
 from jSonCredentials import Credentials
 import csv
+import time
 
 
 class AmazonCSVDialect(csv.Dialect):
@@ -18,26 +19,43 @@ api = mws.Reports(access_key=credentials.AccessKey, secret_key=credentials.Secre
                   account_id=credentials.AccountID, region='UK')
 
 
-def request_flat_file():
+def request_wait_get_and_parse_flat_file():
+    """
+    returns a list of lists of listings
+    each sublist contains 4 values:
+    sku, asin, price, quantity
+    [
+    [01100, 2067166263, 4.49, 5],
+    [01325, 1906261776, 4.49, 22]
+    ]
+    """
     request = api.request_report(report_type='_GET_FLAT_FILE_OPEN_LISTINGS_DATA_',
                                  marketplaceids=(credentials.MarketplaceID,))
+    ready = False
+    while not ready:
+        time.sleep(60)
+        ready = check_if_ready(request.parsed.ReportRequestInfo.ReportRequestId)
+    return get_and_parse_report(ready[1])
 
 
-def get_request_list():
-    request_list = api.get_report_request_list()
-    # what I'm going to need to do is, when I make a request I need to store the report ID.
-    # Then, I check every now and then if that report ID is 'done'
-    # if it is, use api.get_report(generatedreportId) to get the report
-    # will see what happens after that...
-    for report in request_list.parsed.ReportRequestInfo:
-        print "RequestID: %-11s| GeneratedID: %-12s| Type: %-45s| Status: %-8s| " \
-              "DateSubmitted: %s" % (
-                  report.ReportRequestId, report.GeneratedReportId, report.ReportType,
-                  report.ReportProcessingStatus, report.SubmittedDate
-              )
+def get_request_list(request_ids=None):
+    if request_ids is None:
+        request_list = api.get_report_request_list()
+    else:
+        request_list = api.get_report_request_list(request_ids)
+    report = request_list.parsed.ReportRequestInfo
+    return report
 
 
-def parse_report(generated_report_id):
+def check_if_ready(request_id):
+    report = get_request_list((request_id,))
+    if 'DONE' in report.ReportProcessingStatus:
+        return True, report.GeneratedReportId
+    else:
+        return False
+
+
+def get_and_parse_report(generated_report_id):
     report = api.get_report(generated_report_id)
     temp_file = open('report.txt', 'w')
     temp_file.write(report.original.replace('\r\n', '\n'))
@@ -50,5 +68,5 @@ def parse_report(generated_report_id):
     return listings
 
 
-listings = parse_report('38270919104')
+listings = request_wait_get_and_parse_flat_file()
 pass
