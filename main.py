@@ -9,7 +9,7 @@ class AmazonCSVDialect(csv.Dialect):
     quotechar = '"'
     doublequote = True
     skipinitialspace = False
-    lineterminator = '\r\n'
+    lineterminator = '\n'
     quoting = csv.QUOTE_MINIMAL
 
 
