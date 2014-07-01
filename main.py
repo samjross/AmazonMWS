@@ -21,6 +21,7 @@ api = mws.Reports(access_key=credentials.AccessKey, secret_key=credentials.Secre
 
 def request_wait_get_and_parse_flat_file():
     """
+    _GET_FLAT_FILE_OPEN_LISTINGS_DATA_
     returns a list of lists of listings
     each sublist contains 4 values:
     sku, asin, price, quantity
@@ -28,8 +29,10 @@ def request_wait_get_and_parse_flat_file():
     [01100, 2067166263, 4.49, 5],
     [01325, 1906261776, 4.49, 22]
     ]
+
+    alternatively, _GET_MERCHANT_LISTINGS_DATA_ returns a much bigger list of properties
     """
-    request = api.request_report(report_type='_GET_FLAT_FILE_OPEN_LISTINGS_DATA_',
+    request = api.request_report(report_type='_GET_MERCHANT_LISTINGS_DATA_',
                                  marketplaceids=(credentials.MarketplaceID,))
     ready = False
     while not ready:
@@ -62,11 +65,12 @@ def get_and_parse_report(generated_report_id):
     temp_file.close()
     temp_file = open('report.txt', 'r')
     csv_reader = csv.reader(temp_file, dialect=AmazonCSVDialect)
-    csv_reader.next()
+    #csv_reader.next()
     listings = [line for line in csv_reader]
     temp_file.close()
     return listings
 
 
 listings = request_wait_get_and_parse_flat_file()
-pass
+for listing in listings:
+    print listing
