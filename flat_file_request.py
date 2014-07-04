@@ -39,7 +39,7 @@ def request_wait_get_and_parse_flat_file():
     'bid-for-featured-placement', 'item-is-marketplace', 'fulfillment-channel', 'quantity'
 
     The important ones:
-    'seller-sku', 'quantity', 'price', 'product-id' = 'asin1',
+    'seller-sku', 'quantity', 'price', 'asin1',
     'item-name', 'item-condition', 'fulfillment-channel'
     """
     request = api.request_report(report_type='_GET_MERCHANT_LISTINGS_DATA_',
@@ -74,7 +74,13 @@ def get_and_parse_report(generated_report_id):
     temp_file.write(report.original.replace('\r\n', '\n'))
     temp_file.close()
     temp_file = open('report.txt', 'r')
-    csv_reader = csv.reader(temp_file, dialect=AmazonCSVDialect)
+    listings = read_amazon_csv(temp_file)
+    temp_file.close()
+    return listings
+
+
+def read_amazon_csv(csv_file):
+    csv_reader = csv.reader(csv_file, dialect=AmazonCSVDialect)
     keys = csv_reader.next()
     listings = []
     for line in csv_reader:
@@ -82,10 +88,10 @@ def get_and_parse_report(generated_report_id):
         for index in range(len(line)):
             listing_dict[keys[index]] = line[index]
         listings.append(listing_dict)
-    temp_file.close()
     return listings
 
 
-listins = request_wait_get_and_parse_flat_file()
-for listing in listins:
-    print listing
+if __name__ == "__main__":
+    listins = request_wait_get_and_parse_flat_file()
+    for listing in listins:
+        print listing
